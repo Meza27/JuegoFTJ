@@ -3,6 +3,7 @@
 #include <GL/glew.h>
 #include <iostream>
 #include "Sprite.h"
+#include "GLSProgram.h"
 
 using namespace std;
 
@@ -15,9 +16,11 @@ private:
 	int width;
 	int height;
 	Sprite sprite;
+	GLSProgram program;
 	SDL_Window* window;
 	void init();
 	void processInput();
+	void initShaders();
 
 public:
 	MainGame();
