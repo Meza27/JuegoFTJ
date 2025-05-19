@@ -14,7 +14,15 @@ void MainGame::run()
 	height = 600;
 	gameState = GameState::PLAY;
 	init();
-	sprite.init(-1, -1, 1, 1);
+	sprites.push_back(new Sprite());
+	sprites.back()->init(-1, -1, 1, 1, "Images/solo-leveling.png");
+	sprites.push_back(new Sprite());
+	sprites.back()->init(0, -1, 1, 1, "Images/shingeki.png");
+	sprites.push_back(new Sprite());
+	sprites.back()->init(-1, 0, 1, 1, "Images/jujutsu.png");
+	sprites.push_back(new Sprite());
+	sprites.back()->init(0, 0, 1, 1, "Images/blue-lock.png");
+	//sprite.init(-1, -1, 1, 1, "Images/solo-leveling.png");
 	update();
 }
 
@@ -42,7 +50,14 @@ void MainGame::processInput()
 			gameState = GameState::EXIT;
 			break;
 		case SDL_EVENT_MOUSE_MOTION:
-			cout << "posicion x " << event.motion.x << " posicion y " << event.motion.y << endl;
+			inputManager.setMouseCoords(event.motion.x, event.motion.y);
+			//cout << "posicion x " << event.motion.x << " posicion y " << event.motion.y << endl;
+			break;
+		case SDL_EVENT_KEY_DOWN:
+			inputManager.pressKey(event.key.key);
+			break;
+		case SDL_EVENT_KEY_UP:
+			inputManager.releaseKey(event.key.key);
 			break;
 		}
 	}
@@ -50,6 +65,10 @@ void MainGame::processInput()
 
 void MainGame::initShaders() {
 	program.compileShaders("Shaders/colorShaderVert.txt", "Shaders/colorShaderFrag.txt");
+	program.addAtribute("vertexPosition");
+	program.addAtribute("vertexColor");
+	program.addAtribute("vertexUV");
+	program.linkShader();
 }
 
 void MainGame::update()
@@ -62,9 +81,20 @@ void MainGame::update()
 
 void MainGame::draw()
 {
+	time += 0.02;
 	glClearDepth(1.0);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	sprite.draw();
+	program.use();
+	glActiveTexture(GL_TEXTURE0);
+	GLuint timeLocation = program.getUniformLocation("time");
+	glUniform1f(timeLocation, time);
+	GLuint textureLocation = program.getUniformLocation("myImage");
+	glUniform1i(textureLocation, 0);
+	for (size_t i = 0; i < sprites.size(); i++) {
+		sprites[i]->draw();
+	}
+
+	program.unuse();
 	SDL_GL_SwapWindow(window);
 }
 
